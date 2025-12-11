@@ -1,0 +1,121 @@
+{
+    "indexes": [
+        {
+            "collectionGroup": "mojo_items",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "flaggedAsOffensive",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "datetimeSubmitted",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "mojo_items",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "flaggedAsOffensive",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "linkToDemographicID",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "datetimeSubmitted",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "mojo_items",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "type",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "datetimeSubmitted",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "votes",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "itemID",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "datetimeVote",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "votes",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "voterID",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "datetimeVote",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "votes",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "type",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "datetimeVote",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "user_traits",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "createdBy",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "createdAt",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "saved_mohis",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "userId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "datetimeSaved",
+                    "order": "DESCENDING"
+                }
+            ]
+        }
+    ],
+    "fieldOverrides": []
+}

@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "uat": "genomojo-uat",
+    "default": "genomojo-uat"
+  },
+  "targets": {},
+  "etags": {}
+}

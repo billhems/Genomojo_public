@@ -1,0 +1,192 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===== Helper Functions =====
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && 
+             request.auth.token.admin == true;
+    }
+    
+    // Validate string field
+    function isValidString(field, minLen, maxLen) {
+      return field is string && 
+             field.size() >= minLen && 
+             field.size() <= maxLen;
+    }
+    
+    // ===== Default: Deny Everything =====
+    
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // ===== Application Data =====
+    
+    match /artifacts/{projectId}/public/data {
+      
+      // ----- Mojo Items (Submissions) -----
+      match /mojo_items/{itemId} {
+        // Anyone can read non-flagged items
+        allow read: if true;
+        
+        // Only authenticated users can create
+        // Must be owner of the item they're creating
+        allow create: if isSignedIn() && 
+          request.resource.data.linkToDemographicID == request.auth.uid &&
+          isValidString(request.resource.data.description, 1, 100) &&
+          request.resource.data.type in ['H', 'L'] &&
+          request.resource.data.flaggedAsOffensive == false &&
+          request.resource.data.adjudicatedAsOffensive == false;
+        
+        // Only item owner can update their own items
+        allow update: if isOwner(resource.data.linkToDemographicID) &&
+          // Cannot change ownership
+          request.resource.data.linkToDemographicID == resource.data.linkToDemographicID;
+        
+        // Only admins can delete
+        allow delete: if isAdmin();
+      }
+      
+      // ----- Votes -----
+      match /votes/{voteId} {
+        // Anyone can read votes (for distribution charts)
+        allow read: if true;
+        
+        // Only authenticated users can create votes
+        // Must be voting as themselves
+        allow create: if isSignedIn() && 
+          request.resource.data.voterID == request.auth.uid &&
+          request.resource.data.score is int &&
+          request.resource.data.score >= 1 &&
+          request.resource.data.score <= 5 &&
+          request.resource.data.type in ['H', 'L'];
+        
+        // Votes cannot be updated (immutable)
+        allow update: if false;
+        
+        // Only admins can delete votes
+        allow delete: if isAdmin();
+      }
+
+      // ----- Skips -----
+      match /skips/{skipId} {
+        // Users can read their own skips to filter out items
+        allow read: if isSignedIn() && 
+          (resource.data.userId == request.auth.uid || isAdmin());
+        
+        // Users can create skips for themselves
+        allow create: if isSignedIn() && 
+          request.resource.data.userId == request.auth.uid;
+
+        // No updates allowed
+        allow update: if false;
+
+        // Admins can delete
+        allow delete: if isAdmin();
+      }
+      
+      // ----- User Demographics -----
+      match /demographics/{userId} {
+        // Users can only read their own demographics
+        allow read: if isOwner(userId) || isAdmin() || userId.matches('guest_.*');
+        
+        // Users can only write their own demographics
+        allow create, update: if isOwner(userId) || userId.matches('guest_.*');
+        
+        // Only admins can delete
+        allow delete: if isAdmin();
+      }
+      
+      // ----- Saved MoHis -----
+      match /saved_mohis/{savedId} {
+        // Users can read their own saved items
+        allow read: if isSignedIn() &&
+          (resource.data.userId == request.auth.uid || isAdmin());
+
+        // Users can create saved items for themselves
+        allow create: if isSignedIn() &&
+          request.resource.data.userId == request.auth.uid;
+
+        // No updates allowed (just save/delete)
+        allow update: if false;
+
+        // Users can delete their own saved items (or admins)
+        allow delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      }
+
+      // ----- Traits (Static Data) -----
+      match /traits/{traitId} {
+        // Anyone can read traits
+        allow read: if true;
+        
+        // Only admins can write (seeded data)
+        allow write: if isAdmin();
+      }
+
+      // ----- User Traits (Identity Builder) -----
+      match /user_traits/{traitId} {
+        // Anyone can read traits (for discovery)
+        allow read: if true;
+        
+        // Only authenticated users can create
+        // Must be owner
+        allow create: if isSignedIn() && 
+          request.resource.data.createdBy == request.auth.uid;
+        
+        // Only owner can update
+        allow update: if isOwner(resource.data.createdBy);
+        
+        // Owner or admin can delete
+        allow delete: if isOwner(resource.data.createdBy) || isAdmin();
+      }
+      
+      // ----- Vote Statistics (Aggregated Data) -----
+      match /stats/{statId} {
+        // Anyone can read stats
+        allow read: if true;
+        
+        // Only Cloud Functions can write stats
+        // (Cloud Functions use Admin SDK and bypass rules)
+        allow write: if false;
+      }
+
+      // ----- Daily Stats -----
+      match /stats_daily/{dateId} {
+        // Admins can read daily stats for dashboards
+        allow read: if isAdmin();
+        
+        // Only Cloud Functions can write
+        allow write: if false;
+      }
+      
+      // ----- Users (Stats Profiles) -----
+      match /users/{userId} {
+        // Admins can read user stats (for leaderboards)
+        // Users can read their own stats
+        allow read: if isAdmin() || isOwner(userId);
+        
+        // Only Cloud Functions write to this
+        allow write: if false;
+      }
+
+      // ----- App Configuration (Feature Toggles) -----
+      match /config/{configId} {
+        // Anyone can read config (to check feature flags)
+        allow read: if true;
+        
+        // Only admins can change config
+        allow write: if isAdmin();
+      }
+    }
+  }
+}

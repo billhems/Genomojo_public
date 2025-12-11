@@ -1,0 +1,25 @@
+# Security Implementation Tasks
+
+- [x] Environment Variables Setup <!-- id: 1 -->
+    - [x] Create `.env` file with Firebase config
+    - [x] Update `useFirebaseApp.js` to use env vars
+    - [x] Add `.env` to `.gitignore`
+- [x] Admin Authorization Improvements <!-- id: 2 -->
+    - [x] Remove hardcoded Admin UID from client
+    - [x] Document Firebase Custom Claims setup
+    - [x] Update admin check to use Custom Claims
+- [/] Input Sanitization <!-- id: 3 -->
+    - [x] Install DOMPurify
+    - [x] Add sanitization to SubmitScreen (Manual)
+    - [x] Add sanitization to IdentityBuilder (Manual)
+    - [ ] Verify sanitization
+- [x] Memory Leak Fixes <!-- id: 4 -->
+    - [x] Fix ThreeScene texture disposal
+    - [x] Add proper cleanup for all Three.js objects
+- [ ] Additional Improvements <!-- id: 5 -->
+    - [ ] Fix deprecated `document.execCommand` (Manual)
+    - [x] Add Error Boundary component
+    - [ ] Optimize Firestore queries in VoteScreen
+- [x] Debugging <!-- id: 6 -->
+    - [x] Fix SubmitScreen.jsx syntax errors
+    - [x] Restart dev server

@@ -1,0 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+/* * This file is for a standard Tailwind CSS setup.
+ * When setting up locally (e.g., with Vite), you need to ensure Tailwind processes this file.
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'Inter', sans-serif;
+    @apply text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-900;
+}

@@ -1,0 +1,55 @@
+
+> genomojo-gemini@0.0.0 lint
+> eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0
+
+
+C:\Users\billh\OneDrive\Documents\Genomojo\Code\Genomojo Gemini\src\MainApp.jsx
+   1:8   error  'React' is defined but never used    no-unused-vars
+   8:10  error  'LogOut' is defined but never used   no-unused-vars
+  21:60  error  'signOut' is defined but never used  no-unused-vars
+  51:27  error  'UserCog' is not defined             no-undef
+  74:26  error  'Button' is not defined              react/jsx-no-undef
+  75:26  error  'Button' is not defined              react/jsx-no-undef
+  78:22  error  'Button' is not defined              react/jsx-no-undef
+
+C:\Users\billh\OneDrive\Documents\Genomojo\Code\Genomojo Gemini\src\admin\AdminDashboard.jsx
+  1:8  error  'React' is defined but never used  no-unused-vars
+
+C:\Users\billh\OneDrive\Documents\Genomojo\Code\Genomojo Gemini\src\admin\AdminLoginScreen.jsx
+  1:8  error  'React' is defined but never used  no-unused-vars
+
+C:\Users\billh\OneDrive\Documents\Genomojo\Code\Genomojo Gemini\src\components\Button.jsx
+  1:8  error  'React' is defined but never used  no-unused-vars
+
+C:\Users\billh\OneDrive\Documents\Genomojo\Code\Genomojo Gemini\src\components\Modal.jsx
+  1:8  error  'React' is defined but never used  no-unused-vars
+
+C:\Users\billh\OneDrive\Documents\Genomojo\Code\Genomojo Gemini\src\hooks\useFirebaseApp.js
+  1:44  error  'useMemo' is defined but never used                no-unused-vars
+  3:38  error  'signInWithCustomToken' is defined but never used  no-unused-vars
+
+C:\Users\billh\OneDrive\Documents\Genomojo\Code\Genomojo Gemini\src\screens\LandingScreen.jsx
+    1:8   error  'React' is defined but never used                                no-unused-vars
+   19:72  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+   19:82  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+   23:55  error  'navigate' is defined but never used                             no-unused-vars
+   36:23  error  'setDoc' is not defined                                          no-undef
+   36:30  error  'doc' is not defined                                             no-undef
+  122:42  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\billh\OneDrive\Documents\Genomojo\Code\Genomojo Gemini\src\screens\SubmitScreen.jsx
+    1:8   error  'React' is defined but never used                                no-unused-vars
+  167:25  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  167:46  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\billh\OneDrive\Documents\Genomojo\Code\Genomojo Gemini\src\screens\VoteScreen.jsx
+   1:8    error  'React' is defined but never used                                no-unused-vars
+   1:51   error  'useMemo' is defined but never used                              no-unused-vars
+   5:91   error  'updateDoc' is defined but never used                            no-unused-vars
+   5:102  error  'getDocs' is defined but never used                              no-unused-vars
+  13:12   error  'audioUrl' is assigned a value but never used                    no-unused-vars
+  81:74   error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  81:93   error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+Ô£û 30 problems (30 errors, 0 warnings)
+
