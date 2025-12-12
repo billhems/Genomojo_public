@@ -14,12 +14,12 @@ Implement critical security fixes to protect user data and prevent vulnerabiliti
 ### Files to Create
 #### [NEW] [.env](file:///c:/Users/billh/OneDrive/Documents/Genomojo/Code/Genomojo%20Gemini/.env)
 ```env
-VITE_FIREBASE_API_KEY=AIzaSyBRuMT6-gMG7UnPvIAKKRx7fBbxhxXM9Dc
+VITE_FIREBASE_API_KEY=AIxxxxxxxxxxxxxxxxx
 VITE_FIREBASE_AUTH_DOMAIN=genomojo.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=genomojo
 VITE_FIREBASE_STORAGE_BUCKET=genomojo.firebasestorage.app
-VITE_FIREBASE_MESSAGING_SENDER_ID=276966382378
-VITE_FIREBASE_APP_ID=1:276966382378:web:cee6945ef286bfa2fd1c53
+VITE_FIREBASE_MESSAGING_SENDER_ID=2xxxxxxxxxxx
+VITE_FIREBASE_APP_ID=1:2xxxxxxxx:web:cexxxxxxxxx
 VITE_FIREBASE_MEASUREMENT_ID=G-163ELD6TJ2
 ```
 
