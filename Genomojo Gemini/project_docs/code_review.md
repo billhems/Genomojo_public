@@ -13,7 +13,7 @@ This code review identifies **critical security vulnerabilities**, **performance
 
 ```javascript
 const firebaseConfig = {
-    apiKey: "AIzaSyBRuMT6-gMG7UnPvIAKKRx7fBbxhxXM9Dc",
+    apiKey: "AIxxxxxxxxxxxxxxxx",
     authDomain: "genomojo.firebaseapp.com",
     projectId: "genomojo",
     // ... other credentials
@@ -36,7 +36,7 @@ const firebaseConfig = {
 **File**: [`useFirebaseApp.js:18`](file:///c:/Users/billh/OneDrive/Documents/Genomojo/Code/Genomojo%20Gemini/src/hooks/useFirebaseApp.js#L18)
 
 ```javascript
-const ADMIN_UID = "PqKOX5yVc6X00D0KsHqalPKVgY93";
+const ADMIN_UID = "Pqxxxxxxxxxxxxxxxx";
 ```
 
 **Problem**: Admin user ID is hardcoded and publicly visible.
