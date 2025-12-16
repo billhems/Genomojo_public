@@ -155,14 +155,15 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
                 setGeneratedImage(compressedImage);
                 setHasGeneratedImage(true);
 
-                // Save to Firestore
                 if (db && userId) {
                     await setDoc(doc(db, getCollectionPath('demographics'), userId), {
                         characterImageUrl: compressedImage,
                         hasGeneratedImage: true,
+                        movieConcept: concept, // Save the full JSON concept
                         // Ensure other fields are preserved/updated if they changed
                         age: age ? parseInt(age) : null,
                         gender: gender || null,
+                        identityTraits: identityTraits, // Save traits in case they were just modified
                         datetimeSubmitted: new Date().toISOString(), // Update form timestamp
                         lastVisualisedAt: new Date().toISOString() // New timestamp for visualisation cooldown
                     }, { merge: true });
