@@ -14,7 +14,7 @@ service cloud.firestore {
     
     function isAdmin() {
       return isSignedIn() && 
-             request.auth.token.admin == true;
+             request.auth.token.get('admin', false) == true;
     }
     
     // Validate string field
@@ -96,12 +96,15 @@ service cloud.firestore {
       }
       
       // ----- User Demographics -----
-      match /demographics/{userId} {
+      // ----- User Demographics -----
+      match /demographics/{docId} {
         // Users can only read their own demographics
-        allow read: if isOwner(userId) || isAdmin() || userId.matches('guest_.*');
+         allow read: if isOwner(docId) || isAdmin() || (docId.size() >= 6 && docId[0:6] == 'guest_');
+        // allow read: if request.auth != null && request.auth.uid == docId;
         
         // Users can only write their own demographics
-        allow create, update: if isOwner(userId) || userId.matches('guest_.*');
+         allow create, update: if isOwner(docId) || (docId.size() >= 6 && docId[0:6] == 'guest_');
+        // allow create, update: if request.auth != null && request.auth.uid == docId;
         
         // Only admins can delete
         allow delete: if isAdmin();
