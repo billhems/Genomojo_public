@@ -6,6 +6,7 @@ import { generateCharacterImage, generateMovieConcept, generateMoviePoster } fro
 import { Sparkles, Image as ImageIcon, X, Plus, Clapperboard, Film } from 'lucide-react';
 import { SelectionIndicator } from '../features/IdentityBuilder/components/SelectionIndicator';
 import { SocialShareButtons } from '../components/SocialShareButtons';
+import { GenrePickerOverlay } from '../components/GenrePickerOverlay';
 
 
 export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
@@ -20,6 +21,9 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
     const [visualiseIdentityEnabled, setVisualiseIdentityEnabled] = useState(false);
     const [generatedImage, setGeneratedImage] = useState(null);
     const [hasGeneratedImage, setHasGeneratedImage] = useState(false);
+
+    // Genre Picker State
+    const [showGenrePicker, setShowGenrePicker] = useState(false);
 
     // Generation Status State: 'idle' | 'casting' | 'filming'
     const [generationStatus, setGenerationStatus] = useState('idle');
@@ -102,8 +106,19 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
         });
     };
 
-    const handleVisualise = async () => {
+    const handleOpenGenrePicker = () => {
         if (generationStatus !== 'idle' || hasGeneratedImage) return;
+        setShowGenrePicker(true);
+    };
+
+    const handleGenreSelect = (selectedGenre) => {
+        setShowGenrePicker(false);
+        handleVisualise(selectedGenre);
+    };
+
+    const handleVisualise = async (genreRaw) => {
+        // Fallback if no genre selected (shouldn't happen with flow)
+        const genre = genreRaw || "Mainstream";
 
         try {
             // Construct traits string
@@ -118,7 +133,8 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
             const concept = await generateMovieConcept(
                 age || 'Unknown',
                 gender || 'Unknown',
-                traitsString || 'No specific traits'
+                traitsString || 'No specific traits',
+                genre
             );
 
             if (!concept) {
@@ -214,6 +230,12 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
 
     return (
         <div className="p-4 sm:p-6 max-w-xl mx-auto space-y-6">
+            <GenrePickerOverlay
+                isOpen={showGenrePicker}
+                onClose={() => setShowGenrePicker(false)}
+                onSelect={handleGenreSelect}
+            />
+
             <h1 className="text-4xl font-extrabold text-mohi-600 dark:text-mohi-400 text-center">
                 About You
             </h1>
@@ -379,7 +401,7 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
                                 Create a unique movie poster starring YOU based on your traits.
                             </p>
                             <Button
-                                onClick={handleVisualise}
+                                onClick={handleOpenGenrePicker}
                                 disabled={generationStatus !== 'idle' || hasGeneratedImage || identityTraits.length < 5}
                                 color="custom"
                                 className={`w-full flex justify-center items-center py-3 ${identityTraits.length < 5 && !hasGeneratedImage ? 'bg-gray-300 cursor-not-allowed text-gray-500' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}
@@ -441,3 +463,4 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
         </div >
     );
 };
+
