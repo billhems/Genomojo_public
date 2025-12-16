@@ -4,6 +4,9 @@ import { Modal } from '../components/Modal';
 import { Sparkles, Send, RefreshCw, Share2, CornerDownLeft, Facebook, Twitter, Linkedin, MessageCircle, Link } from 'lucide-react';
 import { MessageOverlay } from '../components/MessageOverlay';
 import { SocialShareButtons } from '../components/SocialShareButtons';
+import { TextCarousel } from '../components/TextCarousel';
+import { InfoTooltip } from '../components/InfoTooltip';
+import { tooltipContent } from '../content/tooltips';
 import { useFirebaseApp, addDoc, collection, getCollectionPath, doc, onSnapshot } from '../hooks/useFirebaseApp';
 import { getFactorInsight } from '../api/gemini';
 import DOMPurify from 'dompurify';
@@ -143,18 +146,36 @@ export const SubmitScreen = ({ navigate, initialType = 'H' }) => {
         return () => unsubscribe();
     }, [db]);
 
-    const title = isMoHi ? "Add a MoHi (Positive Factor)" : "Add a MoLo (Negative Factor)";
+    const title = isMoHi ? "Add a MoHi that..." : "Add a MoLo that...";
+
+    const mohiPhrases = [
+        "perks you up", "calms you down", "makes you smile",
+        "lifts your spirits", "boosts your energy", "charges your battery"
+    ];
+
+    const moloPhrases = [
+        "p*sses you off", "wears you down", "stresses you out",
+        "grinds your gears", "tires you out", "makes you sad"
+    ];
 
     return (
         <div className="p-4 sm:p-6 max-w-xl mx-auto space-y-6">
-            <h1 className={`text-4xl font-extrabold ${themeClasses[accentColor].title} text-center`}>
-                {title}
-            </h1>
+            {/* Header Area */}
+            <div className="flex items-center justify-center gap-3">
+                <h1 className={`text-4xl font-extrabold ${themeClasses[accentColor].title} text-center`}>
+                    {title}
+                </h1>
+                <InfoTooltip
+                    content={isMoHi ? tooltipContent.submitScreen.whatIsMoHi : tooltipContent.submitScreen.whatIsMoLo}
+                    position="right"
+                />
+            </div>
 
             <div className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-3 rounded-xl shadow-inner">
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                    What impacts your Mojo? Something you do, something that happens, something you think, something you feel... (Max 100 characters)
-                </p>
+                <TextCarousel
+                    phrases={isMoHi ? mohiPhrases : moloPhrases}
+                    colorClassName={isMoHi ? themeClasses.mohi.title : themeClasses.molo.title}
+                />
                 <Button
                     onClick={() => setType(isMoHi ? 'L' : 'H')}
                     color={isMoHi ? 'red' : 'green'}

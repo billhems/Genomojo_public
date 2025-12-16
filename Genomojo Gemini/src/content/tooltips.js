@@ -23,5 +23,15 @@ export const tooltipContent = {
             title: "All Voters",
             text: "These are the total votes cast by the entire Genomojo community across all items, split by MoHi (High) and MoLo (Low) classifications."
         }
+    },
+    submitScreen: {
+        whatIsMoHi: {
+            title: "What is a MoHi?",
+            text: "A MoHi is something that boosts your Mojo. Something you do, somebody or something that you experience, that makes you feel good."
+        },
+        whatIsMoLo: {
+            title: "What is a MoLo?",
+            text: "A MoLo is something that drains your Mojo. Something you do, somebody or something that you experience, that makes you feel bad."
+        }
     }
 };
