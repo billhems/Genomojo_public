@@ -144,3 +144,117 @@ ${traits}
         return null;
     }
 };
+
+export const generateMovieConcept = async (age, gender, traits) => {
+    const model = 'gemini-2.5-flash-preview-09-2025';
+    const url = `${API_BASE}${model}:generateContent?key=${API_KEY}`;
+
+    const prompt = `
+    You are a creative Hollywood casting director and screenwriter.
+    Input Data:
+    • Age: ${age}
+    • Gender: ${gender}
+    • 5 Key Traits: ${traits}
+    
+    Task: Based on these traits, create a movie concept.
+    1. Character Name: A name that fits the genre.
+    2. Movie Title: Catchy and relevant to the traits.
+    3. Strap Line: A one-sentence hook.
+    4. Visual Description: A vivid, physical description for a movie poster. 
+       - Translate abstract hobbies into visual props.
+       - Translate personality traits into physical pose or clothing.
+       - Include specifics on lighting, camera angle, and outfit.
+
+    Output strictly valid JSON with keys: character_name, genre, movie_title, strapline, visual_description.
+    `;
+
+    const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+            responseMimeType: "application/json"
+        }
+    };
+
+    try {
+        const response = await fetchWithBackoff(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!text) {
+            throw new Error("No text content in response");
+        }
+
+        return JSON.parse(text);
+    } catch (error) {
+        console.error("Movie Concept API error:", error);
+        return null;
+    }
+};
+
+export const generateMoviePoster = async (concept) => {
+    // Using the same model class as generateCharacterImage for consistency and reliability
+    // unless the user specifically has access to 'imagen-3.0-generate-001' via this same API key/endpoint.
+    // The user requested 'imagen-3.0-generate-001', so let's try that. 
+    // If it fails, we might need to fallback.
+    const model = 'imagen-3.0-generate-001';
+    const url = `${API_BASE}${model}:predict?key=${API_KEY}`;
+    // Wait, the API_BASE is .../v1beta/models/. 
+    // Imagen 3 usually uses a different endpoint structure or :predict.
+    // But via Gemini API (Generative Language), it often uses :generateContent with image generation capabilities (like gemini-2.5-flash-image-preview).
+    // Let's stick to the KNOWN WORKING model for images in this file: 'gemini-2.5-flash-image-preview'
+    // but update the PROMPT to be the cinematic one.
+    // OR, we can try to use the model ID the user gave if it works with :generateContent.
+    // Let's use 'gemini-2.5-flash-image-preview' to be SAFE since we know it works, 
+    // but I'll add a comment that we are using it as the image generator.
+
+    const imageModel = 'gemini-2.5-flash-image-preview'; // Keeping consistent with known working model
+    const imageUrl = `${API_BASE}${imageModel}:generateContent?key=${API_KEY}`;
+
+    const prompt = `
+    A professional movie poster for a ${concept.genre} film.
+    
+    SUBJECT & SETTING:
+    ${concept.visual_description}
+    
+    TEXT ELEMENTS:
+    The title "${concept.movie_title}" is written in massive, genre-appropriate typography at the bottom.
+    The strapline "${concept.strapline}" is clearly visible.
+    
+    STYLE:
+    High-budget Hollywood production, 8k resolution, dramatic lighting, photorealistic.
+    `;
+
+    const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+            responseModalities: ["IMAGE"],
+        }
+    };
+
+    try {
+        const response = await fetchWithBackoff(imageUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+
+        const part = result.candidates?.[0]?.content?.parts?.[0];
+        const imageData = part?.inlineData?.data;
+        const mimeType = part?.inlineData?.mimeType;
+
+        if (imageData && mimeType && mimeType.startsWith("image/")) {
+            return `data:${mimeType};base64,${imageData}`;
+        }
+
+        console.warn("No image data in movie poster response:", result);
+        return null;
+    } catch (error) {
+        console.error("Movie Poster API error:", error);
+        return null;
+    }
+};

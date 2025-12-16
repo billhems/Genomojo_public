@@ -2,14 +2,14 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '../components/Button';
 import { InfoTooltip } from '../components/InfoTooltip';
 import { useFirebaseApp, doc, setDoc, getDoc, getCollectionPath, onSnapshot } from '../hooks/useFirebaseApp';
-import { generateCharacterImage } from '../api/gemini';
-import { Sparkles, Image as ImageIcon, X, Plus } from 'lucide-react';
+import { generateCharacterImage, generateMovieConcept, generateMoviePoster } from '../api/gemini';
+import { Sparkles, Image as ImageIcon, X, Plus, Clapperboard, Film } from 'lucide-react';
 import { SelectionIndicator } from '../features/IdentityBuilder/components/SelectionIndicator';
 import { SocialShareButtons } from '../components/SocialShareButtons';
 
 
 export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
-    const { db, userId } = useFirebaseApp();
+    const { db, userId, user } = useFirebaseApp();
     const [age, setAge] = useState('');
     const [gender, setGender] = useState('');
     const [identityTraits, setIdentityTraits] = useState([]);
@@ -20,7 +20,9 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
     const [visualiseIdentityEnabled, setVisualiseIdentityEnabled] = useState(false);
     const [generatedImage, setGeneratedImage] = useState(null);
     const [hasGeneratedImage, setHasGeneratedImage] = useState(false);
-    const [isGenerating, setIsGenerating] = useState(false);
+
+    // Generation Status State: 'idle' | 'casting' | 'filming'
+    const [generationStatus, setGenerationStatus] = useState('idle');
 
     const ages = Array.from({ length: 101 }, (_, i) => i + 5); // 5 to 105
     const genders = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
@@ -41,6 +43,11 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
     useEffect(() => {
         const fetchData = async () => {
             if (db && userId) {
+                // Guard: If userId is an Auth UID (not guest_), ensure we are actually authenticated
+                if (!userId.startsWith('guest_') && !user) {
+                    return;
+                }
+
                 // Skip fetch for local guest IDs (unauthenticated)
                 if (userId.startsWith('guest_')) {
                     return;
@@ -96,14 +103,34 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
     };
 
     const handleVisualise = async () => {
-        if (isGenerating || hasGeneratedImage) return;
+        if (generationStatus !== 'idle' || hasGeneratedImage) return;
 
-        setIsGenerating(true);
         try {
             // Construct traits string
             const traitsString = identityTraits.map(t => t.label).join(', ');
 
-            const imageUrl = await generateCharacterImage(age || 'Unknown', gender || 'Unknown', traitsString || 'No specific traits');
+            // --- STEP 1: CASTING (Text to JSON) ---
+            setGenerationStatus('casting');
+
+            // Artificial delay for UX (so user sees "Casting..." message)
+            await new Promise(r => setTimeout(r, 800));
+
+            const concept = await generateMovieConcept(
+                age || 'Unknown',
+                gender || 'Unknown',
+                traitsString || 'No specific traits'
+            );
+
+            if (!concept) {
+                throw new Error("Failed to generate movie concept.");
+            }
+
+            console.log("Movie Concept Generated:", concept);
+
+            // --- STEP 2: FILMING (JSON to Image) ---
+            setGenerationStatus('filming');
+
+            const imageUrl = await generateMoviePoster(concept);
 
             if (imageUrl) {
                 // Compress image before saving to avoid Firestore 1MB limit
@@ -125,13 +152,13 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
                     }, { merge: true });
                 }
             } else {
-                alert("Failed to generate image. Please try again.");
+                alert("Failed to generate poster image. Please try again.");
             }
         } catch (error) {
             console.error("Visualise error:", error);
-            alert("An error occurred while generating the image.");
+            alert("An error occurred while generating the movie poster.");
         } finally {
-            setIsGenerating(false);
+            setGenerationStatus('idle');
         }
     };
 
@@ -330,8 +357,8 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
 
                     {generatedImage ? (
                         <div className="space-y-4">
-                            <div className="aspect-[3/4] w-full max-w-xs mx-auto overflow-hidden rounded-lg shadow-lg border-4 border-white dark:border-gray-600">
-                                <img src={generatedImage} alt="Character Card" className="w-full h-full object-cover" />
+                            <div className="w-full max-w-xs mx-auto overflow-hidden rounded-lg shadow-lg border-4 border-white dark:border-gray-600">
+                                <img src={generatedImage} alt="Character Card" className="w-full h-auto" />
                             </div>
                             <p className="text-center text-xs text-gray-500 italic">
                                 Generated by Gemini (Nano Banana)
@@ -341,7 +368,7 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
                                     Share your identity card:
                                 </p>
                                 <SocialShareButtons
-                                    shareMessage="I just created this to represent me in The Human Mojo Project."
+                                    shareMessage="Check out the movie poster for my life story! Created with The Human Mojo Project."
                                     imageUrl={generatedImage}
                                 />
                             </div>
@@ -349,23 +376,28 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
                     ) : (
                         <div className="text-center space-y-4">
                             <p className="text-sm text-gray-600 dark:text-gray-300">
-                                Create a unique character card based on your traits using AI.
+                                Create a unique movie poster starring YOU based on your traits.
                             </p>
                             <Button
                                 onClick={handleVisualise}
-                                disabled={isGenerating || hasGeneratedImage || identityTraits.length < 5}
+                                disabled={generationStatus !== 'idle' || hasGeneratedImage || identityTraits.length < 5}
                                 color="custom"
                                 className={`w-full flex justify-center items-center py-3 ${identityTraits.length < 5 && !hasGeneratedImage ? 'bg-gray-300 cursor-not-allowed text-gray-500' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}
                             >
-                                {isGenerating ? (
+                                {generationStatus === 'casting' ? (
                                     <>
                                         <Sparkles className="animate-spin mr-2" size={18} />
-                                        Generating...
+                                        Casting...
+                                    </>
+                                ) : generationStatus === 'filming' ? (
+                                    <>
+                                        <Film className="animate-pulse mr-2" size={18} />
+                                        Filming...
                                     </>
                                 ) : hasGeneratedImage ? (
                                     <>
                                         <ImageIcon className="mr-2" size={18} />
-                                        Already Generated
+                                        Poster Generated
                                     </>
                                 ) : identityTraits.length < 5 ? (
                                     <>
@@ -374,8 +406,8 @@ export const AboutYouScreen = ({ navigate, setHasVisitedDemographics }) => {
                                     </>
                                 ) : (
                                     <>
-                                        <Sparkles className="mr-2" size={18} />
-                                        Visualise
+                                        <Clapperboard className="mr-2" size={18} />
+                                        Generate Movie Poster
                                     </>
                                 )}
                             </Button>

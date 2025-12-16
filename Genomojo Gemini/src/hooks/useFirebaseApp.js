@@ -35,6 +35,7 @@ const firebaseConfig = {
 
 // Global Firebase instances
 let app, authInstance, dbInstance, storageInstance, analyticsInstance;
+let isSigningIn = false;
 
 const getCollectionPath = (collectionName) => {
     // Note: When running locally, you must provide your project's App ID in firebaseConfig for this to work correctly.
@@ -98,14 +99,21 @@ export const useFirebaseApp = () => {
                     setIsAdmin(!!tokenResult.claims.admin);
                 } else {
                     // No user is signed in.
+
+                    // Prevent multiple simultaneous sign-in attempts (Auth Thrashing)
+                    if (isSigningIn) return;
+
                     // Attempt to sign in anonymously to maintain "Guest" status in Firebase
                     // This ensures we have a UID for database operations if needed.
                     try {
+                        isSigningIn = true;
                         await signInAnonymously(authInstance);
+                        isSigningIn = false;
                         // The onAuthStateChanged will fire again with the new anon user
                         return;
                     } catch (e) {
                         console.error("Anonymous sign in failed:", e);
+                        isSigningIn = false;
                     }
 
                     // Fallback: Use Guest ID if auth fails completely

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Facebook, Twitter, Linkedin, MessageCircle, Link } from 'lucide-react';
+import { Facebook, Twitter, Linkedin, MessageCircle, Link, AtSign } from 'lucide-react';
 import { MessageOverlay } from './MessageOverlay';
 
 export const SocialShareButtons = ({ shareUrl, shareMessage, imageUrl, onCopySuccess, onCopyError }) => {
@@ -144,11 +144,7 @@ export const SocialShareButtons = ({ shareUrl, shareMessage, imageUrl, onCopySuc
                     <MessageCircle size={24} />
                 </button>
                 <button onClick={() => shareToSocial('threads')} className="p-3 bg-black text-white rounded-full hover:bg-gray-800 transition-colors" aria-label="Share on Threads">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M19 12c0-3.87-3.13-7-7-7s-7 3.13-7 7 0 7 7 7 1.75 0 3.35-.5 4.7-1.4" />
-                        <path d="M21.5 17.5v-5.5" />
-                        <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
-                    </svg>
+                    <AtSign size={24} />
                 </button>
                 <button onClick={copyToClipboard} className="p-3 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors" aria-label="Copy Link">
                     <Link size={24} />
