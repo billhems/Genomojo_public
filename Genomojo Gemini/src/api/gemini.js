@@ -145,32 +145,39 @@ ${traits}
     }
 };
 
-export const generateMovieConcept = async (age, gender, traits) => {
+export const generateMovieConcept = async (age, gender, traits, genre) => {
     const model = 'gemini-2.5-flash-preview-09-2025';
     const url = `${API_BASE}${model}:generateContent?key=${API_KEY}`;
 
     const prompt = `
-    You are a creative Hollywood casting director and screenwriter.
-    Input Data:
-    • Age: ${age}
-    • Gender: ${gender}
-    • 5 Key Traits: ${traits}
-    
-    Task: Based on these traits, create a movie concept.
-    1. Character Name: A name that fits the genre.
-    2. Movie Title: Catchy and relevant to the traits.
-    3. Strap Line: A one-sentence hook.
-    4. Visual Description: A vivid, physical description for a movie poster. 
-       - Translate abstract hobbies into visual props.
-       - Translate personality traits into physical pose or clothing.
-       - Include specifics on lighting, camera angle, and outfit.
+        System Instruction:
+        You are a creative Hollywood casting director for the ${genre} genre. Your goal is to turn real people into movie characters based on their traits.
 
-    Output strictly valid JSON with keys: character_name, genre, movie_title, strapline, visual_description.
-    `;
+        User Profile:
+        - Age: ${age}
+        - Gender: ${gender}
+        - Key Traits: ${traits}
+        - Desired Genre: ${genre}
+
+        Task:
+        1. Analyze the traits.
+        2. Create a high-concept movie idea in the "${genre}" genre starring this person. It must be a ${genre} movie.
+        3. Assign them a character name and a role that fits both the traits and the genre.
+
+        Output strictly valid JSON:
+        {
+          "character_name": "Name",
+          "genre": "${genre}",
+          "movie_title": "Title",
+          "strapline": "Short punchy hook",
+          "visual_description": "A detailed physical description of the character and setting, suitable for generating a movie poster. Focus on lighting, mood, and genre-specific elements."
+        }
+        `;
 
     const payload = {
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
+            temperature: 0.9, // High creativity
             responseMimeType: "application/json"
         }
     };
